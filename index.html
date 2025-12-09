@@ -838,28 +838,27 @@
         }
 
         .testimonials-container {
-            max-width: 1200px;
+            max-width: 1000px;
             margin: 0 auto;
             position: relative;
+            overflow: hidden;
+            width: 100%;
         }
 
         .testimonials-track {
             display: flex;
-            transition: transform 0.5s ease-in-out;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
+            width: 100%;
         }
 
         .testimonial {
             min-width: 100%;
-            padding: 4rem 2rem;
+            width: 100%;
+            padding: 3rem 1rem;
             text-align: center;
-            opacity: 0;
-            transition: opacity 0.5s ease-in-out;
             flex-shrink: 0;
-        }
-
-        .testimonial.active {
-            opacity: 1;
+            box-sizing: border-box;
         }
 
         .testimonial-avatar {
@@ -870,6 +869,7 @@
             border: 4px solid var(--primary);
             box-shadow: 0 15px 40px rgba(255, 107, 53, 0.3);
             transition: transform 0.3s;
+            object-fit: cover;
         }
 
         .testimonial-avatar:hover {
@@ -877,7 +877,7 @@
         }
 
         .testimonial-text {
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             font-style: italic;
             color: #555;
             margin-bottom: 2rem;
@@ -886,6 +886,7 @@
             max-width: 800px;
             margin-left: auto;
             margin-right: auto;
+            padding: 0 2rem;
         }
 
         .testimonial-text::before {
@@ -894,8 +895,9 @@
             color: var(--primary);
             position: absolute;
             top: -30px;
-            left: -20px;
+            left: 10px;
             opacity: 0.3;
+            font-family: Georgia, serif;
         }
 
         .testimonial-author {
@@ -924,17 +926,21 @@
             border-radius: 50%;
             background: #ddd;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid transparent;
+        }
+
+        .dot:hover {
+            background: rgba(255, 107, 53, 0.5);
+            transform: scale(1.2);
         }
 
         .dot.active {
             background: var(--primary);
             width: 40px;
             border-radius: 10px;
+            border-color: var(--primary);
         }
-
-      
-      
 
         /* CTA Section with Animated Gradient */
         .cta-section {
@@ -994,6 +1000,7 @@
         .cta-section .btn-secondary:hover {
             transform: translateY(-5px) scale(1.05);
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            color: #ddd;
         }
 
         /* Footer with Modern Design */
@@ -1294,6 +1301,7 @@
             </div>
         </div>
     </nav>
+<br>
 
     <!-- Hero Section -->
     <section class="hero" id="home">
@@ -1475,9 +1483,6 @@
             <h2>What Our Clients Say</h2>
         </div>
         <div class="testimonials-container">
-            <div class="testimonial-nav prev" id="prevBtn">‹</div>
-            <div class="testimonial-nav next" id="nextBtn">›</div>
-            
             <div class="testimonials-track" id="testimonialsTrack">
                 <div class="testimonial active">
                     <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Client" class="testimonial-avatar">
@@ -1555,7 +1560,7 @@
             </div>
         </div>
         <div class="footer-bottom">
-            <p>Copyright ©2025 ITTAB. All Rights Reserved. | Designed by Jesse Frank</p>
+            <p>Copyright ©2025 ITTAB. All Rights Reserved. | Redesigned by Claude (Anthropic AI)</p>
         </div>
     </footer>
 
@@ -1620,19 +1625,17 @@
         const testimonials = document.querySelectorAll('.testimonial');
         const testimonialsTrack = document.getElementById('testimonialsTrack');
         const dots = document.querySelectorAll('.dot');
-      
 
         function showTestimonial(index) {
             // Update transform to slide the track
-            testimonialsTrack.style.transform = `translateX(-${index * 100}%)`;
+            const translateValue = -index * 100;
+            testimonialsTrack.style.transform = `translateX(${translateValue}%)`;
             
-            // Update active states
-            testimonials.forEach((testimonial, i) => {
-                testimonial.classList.remove('active');
-                dots[i].classList.remove('active');
+            // Update active states for dots
+            dots.forEach((dot, i) => {
+                dot.classList.remove('active');
             });
             
-            testimonials[index].classList.add('active');
             dots[index].classList.add('active');
         }
 
@@ -1641,25 +1644,8 @@
             showTestimonial(currentTestimonial);
         }
 
-        function prevTestimonial() {
-            currentTestimonial = (currentTestimonial - 1 + testimonials.length) % testimonials.length;
-            showTestimonial(currentTestimonial);
-        }
-
         // Auto-slide testimonials every 5 seconds
         let autoSlide = setInterval(nextTestimonial, 5000);
-
-        nextBtn.addEventListener('click', () => {
-            nextTestimonial();
-            clearInterval(autoSlide);
-            autoSlide = setInterval(nextTestimonial, 5000);
-        });
-
-        prevBtn.addEventListener('click', () => {
-            prevTestimonial();
-            clearInterval(autoSlide);
-            autoSlide = setInterval(nextTestimonial, 5000);
-        });
 
         // Dot navigation
         dots.forEach((dot, index) => {
@@ -1670,6 +1656,44 @@
                 autoSlide = setInterval(nextTestimonial, 5000);
             });
         });
+
+        // Pause auto-slide on hover
+        const testimonialsContainer = document.querySelector('.testimonials-container');
+        testimonialsContainer.addEventListener('mouseenter', () => {
+            clearInterval(autoSlide);
+        });
+
+        testimonialsContainer.addEventListener('mouseleave', () => {
+            autoSlide = setInterval(nextTestimonial, 5000);
+        });
+
+        // Touch support for mobile swipe
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        testimonialsContainer.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+            clearInterval(autoSlide);
+        });
+
+        testimonialsContainer.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+            autoSlide = setInterval(nextTestimonial, 5000);
+        });
+
+        function handleSwipe() {
+            if (touchEndX < touchStartX - 50) {
+                // Swipe left - next
+                currentTestimonial = (currentTestimonial + 1) % testimonials.length;
+                showTestimonial(currentTestimonial);
+            }
+            if (touchEndX > touchStartX + 50) {
+                // Swipe right - prev
+                currentTestimonial = (currentTestimonial - 1 + testimonials.length) % testimonials.length;
+                showTestimonial(currentTestimonial);
+            }
+        }
 
         // Scroll to top button
         const scrollTopBtn = document.getElementById('scrollTop');
